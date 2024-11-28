@@ -25,6 +25,7 @@ from .opt import OPTGPTQForCausalLM
 from .phi import PhiGPTQForCausalLM
 from .qwen import QwenGPTQForCausalLM
 from .qwen2 import Qwen2GPTQForCausalLM
+from .qwen2vl import Qwen2VLGPTQForConditionalGeneration
 from .rw import RWGPTQForCausalLM
 from .stablelmepoch import StableLMEpochGPTQForCausalLM
 from .starcoder2 import Starcoder2GPTQForCausalLM
@@ -51,7 +52,7 @@ GPTQ_CAUSAL_LM_MODEL_MAP = {
     "internlm": InternLMGPTQForCausalLM,
     "qwen": QwenGPTQForCausalLM,
     "mistral": MistralGPTQForCausalLM,
-    "minicpm3":MiniCPM3GPTQForCausalLM,
+    "minicpm3": MiniCPM3GPTQForCausalLM,
     "Yi": YiGPTQForCausalLM,
     "xverse": XverseGPTQForCausalLM,
     "deci": DeciLMGPTQForCausalLM,
@@ -59,6 +60,7 @@ GPTQ_CAUSAL_LM_MODEL_MAP = {
     "starcoder2": Starcoder2GPTQForCausalLM,
     "mixtral": MixtralGPTQForCausalLM,
     "qwen2": Qwen2GPTQForCausalLM,
+    "qwen2_vl": Qwen2VLGPTQForConditionalGeneration,
     "longllama": LongLlamaGPTQForCausalLM,
     "gemma": GemmaGPTQForCausalLM,
     "gemma2": Gemma2GPTQForCausalLM,
@@ -84,7 +86,9 @@ class AutoGPTQForCausalLM:
         trust_remote_code: bool = False,
         **model_init_kwargs,
     ) -> BaseGPTQForCausalLM:
-        model_type = check_and_get_model_type(pretrained_model_name_or_path, trust_remote_code)
+        model_type = check_and_get_model_type(
+            pretrained_model_name_or_path, trust_remote_code
+        )
         return GPTQ_CAUSAL_LM_MODEL_MAP[model_type].from_pretrained(
             pretrained_model_name_or_path=pretrained_model_name_or_path,
             quantize_config=quantize_config,
@@ -142,7 +146,8 @@ class AutoGPTQForCausalLM:
         # TODO: do we need this filtering of kwargs? @PanQiWei is there a reason we can't just pass all kwargs?
         keywords = {
             key: kwargs[key]
-            for key in list(signature(quant_func).parameters.keys()) + huggingface_kwargs
+            for key in list(signature(quant_func).parameters.keys())
+            + huggingface_kwargs
             if key in kwargs
         }
         return quant_func(
